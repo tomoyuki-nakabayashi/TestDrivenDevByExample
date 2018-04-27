@@ -10,9 +10,10 @@ namespace money {
 
 class Dollar {
  public:
-    constexpr Dollar(int32_t amount) :amount_{} {}
+    constexpr Dollar(int32_t amount) :amount_{amount} {}
 
-    constexpr void times() const {
+    constexpr Dollar times(int32_t multiplier) const {
+        return Dollar(amount_*multiplier);
     }
 
  public:
