@@ -1,8 +1,8 @@
 // Copyright <2018> <Tomoyuki Nakabayashi>
 // This software is released under the MIT License, see LICENSE.
 
-#ifndef CPP_TEMPLATE_MONEY_H_
-#define CPP_TEMPLATE_MONEY_H_
+#ifndef CPP_TEMPLATE_DOLLAR_H_
+#define CPP_TEMPLATE_DOLLAR_H_
 
 #include <cstdint>
 
@@ -26,4 +26,4 @@ constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs) {
 
 }  // namespace money
 
-#endif  // CPP_TEMPLATE_MONEY_H_
+#endif  // CPP_TEMPLATE_DOLLAR_H_
