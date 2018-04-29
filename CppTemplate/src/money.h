@@ -14,13 +14,15 @@ class Dollar {
     constexpr bool operator==(const Dollar& lhs) const {
       return amount_ == lhs.amount_;
     }
-    constexpr Dollar operator*(const Dollar& lhs) const {
-      return Dollar{amount_*lhs.amount_};
-    }
+    friend constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs);
 
  private:
     int amount_;
 };
+
+constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs) {
+  return Dollar{rhs.amount_*lhs.amount_};
+}
 
 }  // namespace money
 
