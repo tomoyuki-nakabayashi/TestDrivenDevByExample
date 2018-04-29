@@ -12,10 +12,6 @@ class Dollar {
  public:
     constexpr Dollar(int32_t amount) :amount_{amount} {}
 
-    constexpr Dollar times(int32_t multiplier) const {
-      return Dollar(amount_*multiplier);
-    }
-
  public:
     int amount_;
 };
