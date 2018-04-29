@@ -21,6 +21,8 @@ TEST_F(MoneyTest, Multiplication) {
 TEST_F(MoneyTest, Equality) {
   static_assert(Dollar{5} == Dollar{5}, "Two objects must be same.");
   static_assert(!(Dollar{5} == Dollar{6}), "Two objects must be different.");
+  static_assert(Franc{5} == Franc{5}, "Two objects must be same.");
+  static_assert(!(Franc{5} == Franc{6}), "Two objects must be different.");
 }
 
 TEST_F(MoneyTest, FrancMultiplication) {

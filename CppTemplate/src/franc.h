@@ -5,19 +5,15 @@
 #define CPP_TEMPLATE_FRANC_H_
 
 #include <cstdint>
+#include <money.h>
 
 namespace money {
 
-class Franc {
+class Franc : public Money {
  public:
-    constexpr Franc(int32_t amount) :amount_{amount} {}
-    constexpr bool operator==(const Franc& lhs) const {
-      return amount_ == lhs.amount_;
-    }
-    friend constexpr Franc operator*(const Franc& rhs, const Franc& lhs);
+    constexpr Franc(int32_t amount) : Money{amount} {}
 
- private:
-    int amount_;
+    friend constexpr Franc operator*(const Franc& rhs, const Franc& lhs);
 };
 
 constexpr Franc operator*(const Franc& rhs, const Franc& lhs) {

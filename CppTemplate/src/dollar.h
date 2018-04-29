@@ -5,19 +5,15 @@
 #define CPP_TEMPLATE_DOLLAR_H_
 
 #include <cstdint>
+#include <money.h>
 
 namespace money {
 
-class Dollar {
+class Dollar : public Money {
  public:
-    constexpr Dollar(int32_t amount) :amount_{amount} {}
-    constexpr bool operator==(const Dollar& lhs) const {
-      return amount_ == lhs.amount_;
-    }
-    friend constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs);
+    constexpr Dollar(int32_t amount) : Money{amount} {}
 
- private:
-    int amount_;
+    friend constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs);
 };
 
 constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs) {
