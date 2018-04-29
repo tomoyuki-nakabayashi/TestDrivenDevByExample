@@ -22,4 +22,8 @@ class Dollar {
 
 }  // namespace money
 
+constexpr money::Dollar operator*(const money::Dollar& rhs, const int32_t multiplier) {
+  return money::Dollar{rhs.amount_*multiplier};
+}
+
 #endif  // CPP_TEMPLATE_MONEY_H_

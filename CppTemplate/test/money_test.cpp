@@ -12,8 +12,10 @@ class MoneyTest : public ::testing::Test {
 
 TEST_F(MoneyTest, Multiplication) {
   constexpr Dollar five(5);
-  constexpr auto product = five.times(2);
-  static_assert(product.amount_ == 10, "five must be 10");
+  constexpr auto product_by_two = five * 2;
+  static_assert(product_by_two.amount_ == 10, "product must be 10.");
+  constexpr auto product_by_three = five * 3;
+  static_assert(product_by_three.amount_ == 15, "product must be 15.");
 }
 
 }  // namespace money_test
