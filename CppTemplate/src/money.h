@@ -13,7 +13,7 @@ class Dollar {
     constexpr Dollar(int32_t amount) :amount_{amount} {}
 
     constexpr Dollar times(int32_t multiplier) const {
-        return Dollar(amount_*multiplier);
+      return Dollar(amount_*multiplier);
     }
 
  public:
@@ -24,6 +24,10 @@ class Dollar {
 
 constexpr money::Dollar operator*(const money::Dollar& rhs, const money::Dollar& lhs) {
   return money::Dollar{rhs.amount_*lhs.amount_};
+}
+
+constexpr bool operator==(const money::Dollar& rhs, const money::Dollar& lhs) {
+  return rhs.amount_ == lhs.amount_;
 }
 
 #endif  // CPP_TEMPLATE_MONEY_H_

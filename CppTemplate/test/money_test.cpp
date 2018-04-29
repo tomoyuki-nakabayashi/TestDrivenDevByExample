@@ -18,4 +18,9 @@ TEST_F(MoneyTest, Multiplication) {
   static_assert(product_by_three.amount_ == 15, "product must be 15.");
 }
 
+TEST_F(MoneyTest, Equality) {
+  static_assert(Dollar{5} == Dollar{5}, "Two objects must be same.");
+  static_assert(!(Dollar{5} == Dollar{6}), "Two objects must be different.");
+}
+
 }  // namespace money_test
