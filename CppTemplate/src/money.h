@@ -11,19 +11,17 @@ namespace money {
 class Dollar {
  public:
     constexpr Dollar(int32_t amount) :amount_{amount} {}
+    constexpr bool operator==(const Dollar& lhs) const {
+      return amount_ == lhs.amount_;
+    }
+    constexpr Dollar operator*(const Dollar& lhs) const {
+      return Dollar{amount_*lhs.amount_};
+    }
 
- public:
+ private:
     int amount_;
 };
 
 }  // namespace money
-
-constexpr money::Dollar operator*(const money::Dollar& rhs, const money::Dollar& lhs) {
-  return money::Dollar{rhs.amount_*lhs.amount_};
-}
-
-constexpr bool operator==(const money::Dollar& rhs, const money::Dollar& lhs) {
-  return rhs.amount_ == lhs.amount_;
-}
 
 #endif  // CPP_TEMPLATE_MONEY_H_
