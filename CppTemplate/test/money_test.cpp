@@ -6,6 +6,7 @@
 #include <franc.h>
 
 namespace money_test{
+using money::Money;
 using money::Dollar;
 using money::Franc;
 
@@ -13,7 +14,7 @@ class MoneyTest : public ::testing::Test {
 };
 
 TEST_F(MoneyTest, Multiplication) {
-  constexpr Dollar five(5);
+  constexpr Dollar five{5};
   static_assert((five*2) == Dollar{10}, "product must be 10.");
   static_assert((five*3) == Dollar{15}, "product must be 15.");
 }

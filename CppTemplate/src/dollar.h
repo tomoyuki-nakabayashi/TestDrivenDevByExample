@@ -12,13 +12,7 @@ namespace money {
 class Dollar : public Money {
  public:
     constexpr Dollar(int32_t amount) : Money{amount} {}
-
-    friend constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs);
 };
-
-constexpr Dollar operator*(const Dollar& rhs, const Dollar& lhs) {
-  return Dollar{rhs.amount_*lhs.amount_};
-}
 
 }  // namespace money
 
