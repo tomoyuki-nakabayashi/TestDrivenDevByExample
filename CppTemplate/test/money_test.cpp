@@ -14,7 +14,7 @@ class MoneyTest : public ::testing::Test {
 };
 
 TEST_F(MoneyTest, Multiplication) {
-  constexpr Dollar five{5};
+  constexpr Money<Dollar> five{5};
   static_assert((five*2) == Dollar{10}, "product must be 10.");
   static_assert((five*3) == Dollar{15}, "product must be 15.");
 }
@@ -28,7 +28,7 @@ TEST_F(MoneyTest, Equality) {
 }
 
 TEST_F(MoneyTest, FrancMultiplication) {
-  constexpr Franc five(5);
+  constexpr Money<Franc> five{5};
   static_assert((five*2) == Franc{10}, "product must be 10.");
   static_assert((five*3) == Franc{15}, "product must be 15.");
 }

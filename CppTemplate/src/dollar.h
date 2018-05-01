@@ -9,7 +9,7 @@
 
 namespace money {
 
-class Dollar : public Money {
+class Dollar : public Money<Dollar> {
  public:
     constexpr Dollar(int32_t amount) : Money{amount} {}
 };

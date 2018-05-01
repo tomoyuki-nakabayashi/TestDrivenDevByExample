@@ -10,33 +10,31 @@
 
 namespace money {
 
+template <class Derived>
 class Money {
  public:
     constexpr Money(int32_t amount) :amount_{amount} {}
 
-    template <class T, class U,
+    template <class T,
                 typename std::enable_if<
-                  std::is_base_of<Money, T>::value &&
-                  std::is_base_of<Money, U>::value &&
-                  std::is_same<T, U>::value
+                  std::is_same<Derived, T>::value
                 >::type* = nullptr
               >
-    constexpr friend bool operator==(const T& rhs, const U& lhs) {
+    constexpr friend bool operator==(const Money<Derived>& rhs, const Money<T>& lhs) {
       return rhs.amount_ == lhs.amount_;
     }
 
-    template <class T, class U,
+    template <class T,
                 typename std::enable_if<
-                  !std::is_same<T, U>::value
+                  !std::is_same<Derived, T>::value
                 >::type* = nullptr
               >
-    constexpr friend bool operator==(const T&, const U&) {
+    constexpr friend bool operator==(const Money<Derived>&, const Money<T>&) {
       return false;
     }
 
-    template <class T>
-    constexpr friend T operator*(const T& rhs, int32_t multiplier) {
-      return T{rhs.amount_*multiplier};
+    constexpr friend Money<Derived> operator*(const Money<Derived>& rhs, int32_t multiplier) {
+      return Money<Derived>{rhs.amount_*multiplier};
     }
 
  protected:
