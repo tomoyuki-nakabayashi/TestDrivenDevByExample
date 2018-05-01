@@ -7,6 +7,7 @@
 
 namespace money_test{
 using money::Money;
+using money::Currency;
 using money::Dollar;
 using money::Franc;
 
@@ -31,6 +32,11 @@ TEST_F(MoneyTest, FrancMultiplication) {
   constexpr Money<Franc> five{5};
   static_assert((five*2) == Money<Franc>{10}, "product must be 10.");
   static_assert((five*3) == Money<Franc>{15}, "product must be 15.");
+}
+
+TEST_F(MoneyTest, Currency) {
+  static_assert(Money<Dollar>{1}.currency() == Currency::kUSD, "Dollar must have USD currency.");
+  static_assert(Money<Franc>{1}.currency() == Currency::kCHF, "Franc must have CHF currency.");
 }
 
 }  // namespace money_test

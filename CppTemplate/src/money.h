@@ -10,10 +10,17 @@
 
 namespace money {
 
+enum class Currency {
+  kUSD, kCHF
+};
+
 template <class Derived>
 class Money {
  public:
     constexpr Money(int32_t amount) :amount_{amount} {}
+    constexpr Currency currency() const {
+      return static_cast<const Derived&>(*this).currency();
+    }
 
     template <class T,
                 typename std::enable_if<
