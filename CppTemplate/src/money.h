@@ -17,9 +17,10 @@ enum class Currency {
 template <class Derived>
 class Money {
  public:
-    constexpr Money(int32_t amount) :amount_{amount} {}
+    constexpr Money(int32_t amount, Currency currency = Currency::kUSD)
+        : amount_{amount}, currency_{currency} {}
     constexpr Currency currency() const {
-      return static_cast<const Derived&>(*this).currency();
+      return Derived{0}.currency_;
     }
 
     template <class T,
@@ -46,6 +47,7 @@ class Money {
 
  protected:
     int32_t amount_;
+    Currency currency_;
 };
 
 }  // namespace money

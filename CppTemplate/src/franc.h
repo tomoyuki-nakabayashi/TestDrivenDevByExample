@@ -11,10 +11,8 @@ namespace money {
 
 class Franc : public Money<Franc> {
  public:
-    constexpr Franc(int32_t amount) : Money{amount} {}
-    constexpr Currency currency() const {
-      return Currency::kCHF;
-    }
+    constexpr Franc(int32_t amount = 0)
+        : Money{amount, Currency::kCHF} {}
 };
 
 }  // namespace money
