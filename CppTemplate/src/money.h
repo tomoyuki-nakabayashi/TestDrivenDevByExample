@@ -11,13 +11,13 @@
 namespace money {
 
 enum class Currency {
-  kUSD, kCHF
+  kUSD, kCHF, kNoCurrency
 };
 
 template <class Derived>
 class Money {
  public:
-    constexpr Money(int32_t amount, Currency currency = Currency::kUSD)
+    constexpr Money(int32_t amount, Currency currency = Currency::kNoCurrency)
         : amount_{amount}, currency_{currency} {}
     constexpr Currency currency() const {
       return Derived{0}.currency_;
@@ -29,7 +29,7 @@ class Money {
                 >::type* = nullptr
               >
     constexpr friend bool operator==(const Money<Derived>& rhs, const Money<T>& lhs) {
-      return rhs.amount_ == lhs.amount_;
+      return (rhs.amount_ == lhs.amount_) && (Derived{0}.currency_ == T{0}.currency_);
     }
 
     template <class T,
@@ -38,7 +38,7 @@ class Money {
                 >::type* = nullptr
               >
     constexpr friend bool operator==(const Money<Derived>&, const Money<T>&) {
-      return false;
+      return (Derived{0}.currency_ == T{0}.currency_);
     }
 
     constexpr friend Money<Derived> operator*(const Money<Derived>& rhs, int32_t multiplier) {
