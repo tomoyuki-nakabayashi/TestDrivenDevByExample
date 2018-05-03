@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <type_traits>
 #include <utility>
+#include <expression.h>
 
 namespace money {
 
@@ -14,7 +15,7 @@ enum class Currency {
   kUSD, kCHF, kNoCurrency
 };
 
-class Money {
+class Money : public Expression<Money> {
  public:
     constexpr Money(int32_t amount, Currency currency)
         : amount_{amount}, currency_{currency} {}
@@ -26,7 +27,11 @@ class Money {
       return (rhs.amount_ == lhs.amount_) && (rhs.currency_ == lhs.currency_);
     }
 
-    constexpr friend Money operator*(const Money rhs, int32_t multiplier) {
+    constexpr friend Money operator+(const Money& rhs, const Money& lhs) {
+      return Money{rhs.amount_+lhs.amount_, rhs.currency_};
+    }
+
+    constexpr friend Money operator*(const Money& rhs, int32_t multiplier) {
       return Money{rhs.amount_*multiplier, rhs.currency_};
     }
 

@@ -2,12 +2,14 @@
 // This software is released under the MIT License, see LICENSE.
 
 #include <gtest/gtest.h>
-#include <dollar.h>
-#include <franc.h>
+#include <expression.h>
+#include <bank.h>
 
 namespace money_test{
 using money::Money;
 using money::Currency;
+using money::Expression;
+using money::Bank;
 
 class MoneyTest : public ::testing::Test {
 };
@@ -27,6 +29,14 @@ TEST_F(MoneyTest, Equality) {
 TEST_F(MoneyTest, Currency) {
   static_assert(money::dollar(1).currency() == Currency::kUSD, "Dollar must have USD currency.");
   static_assert(money::franc(1).currency() == Currency::kCHF, "Franc must have CHF currency.");
+}
+
+TEST_F(MoneyTest, SimpleAddition) {
+  constexpr Money five = money::dollar(5);
+  constexpr auto sum = five + five;
+  constexpr Bank bank{};
+  constexpr Money reduced = bank.reduce(sum, Currency::kUSD);
+  static_assert(reduced == money::dollar(10), "sum must be 10 USD.");
 }
 
 }  // namespace money_test
