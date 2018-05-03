@@ -38,7 +38,7 @@ class Money {
                 >::type* = nullptr
               >
     constexpr friend bool operator==(const Money<Derived>&, const Money<T>&) {
-      return (Derived{0}.currency_ == T{0}.currency_);
+      return false;
     }
 
     constexpr friend Money<Derived> operator*(const Money<Derived>& rhs, int32_t multiplier) {
@@ -49,6 +49,11 @@ class Money {
     int32_t amount_;
     Currency currency_;
 };
+
+template <class T>
+constexpr auto factory(int32_t amount) {
+  return Money<T>{amount};
+}
 
 }  // namespace money
 

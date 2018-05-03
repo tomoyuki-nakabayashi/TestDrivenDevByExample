@@ -15,28 +15,28 @@ class MoneyTest : public ::testing::Test {
 };
 
 TEST_F(MoneyTest, Multiplication) {
-  constexpr Money<Dollar> five{5};
-  static_assert((five*2) == Money<Dollar>{10}, "product must be 10.");
-  static_assert((five*3) == Money<Dollar>{15}, "product must be 15.");
+  constexpr auto five = money::factory<Dollar>(5);
+  static_assert((five*2) == money::factory<Dollar>(10), "product must be 10.");
+  static_assert((five*3) == money::factory<Dollar>(15), "product must be 15.");
 }
 
 TEST_F(MoneyTest, Equality) {
-  static_assert(Money<Dollar>{5} == Money<Dollar>{5}, "Two objects must be same.");
-  static_assert(!(Money<Dollar>{5} == Money<Dollar>{6}), "Two objects must be different.");
-  static_assert(Money<Franc>{5} == Money<Franc>{5}, "Two objects must be same.");
-  static_assert(!(Money<Franc>{5} == Money<Franc>{6}), "Two objects must be different.");
-  static_assert(!(Money<Franc>{5} == Money<Dollar>{5}), "Two objects must be different.");
+  static_assert(money::factory<Dollar>(5) == money::factory<Dollar>(5), "Two objects must be same.");
+  static_assert(!(money::factory<Dollar>(5) == money::factory<Dollar>(6)), "Two objects must be different.");
+  static_assert(money::factory<Franc>(5) == money::factory<Franc>(5), "Two objects must be same.");
+  static_assert(!(money::factory<Franc>(5) == money::factory<Franc>(6)), "Two objects must be different.");
+  static_assert(!(money::factory<Franc>(5) == money::factory<Dollar>(5)), "Two objects must be different.");
 }
 
 TEST_F(MoneyTest, FrancMultiplication) {
-  constexpr Money<Franc> five{5};
-  static_assert((five*2) == Money<Franc>{10}, "product must be 10.");
-  static_assert((five*3) == Money<Franc>{15}, "product must be 15.");
+  constexpr auto five = money::factory<Franc>(5);
+  static_assert((five*2) == money::factory<Franc>(10), "product must be 10.");
+  static_assert((five*3) == money::factory<Franc>(15), "product must be 15.");
 }
 
 TEST_F(MoneyTest, Currency) {
-  static_assert(Money<Dollar>{1}.currency() == Currency::kUSD, "Dollar must have USD currency.");
-  static_assert(Money<Franc>{1}.currency() == Currency::kCHF, "Franc must have CHF currency.");
+  static_assert(money::factory<Dollar>(1).currency() == Currency::kUSD, "Dollar must have USD currency.");
+  static_assert(money::factory<Franc>(1).currency() == Currency::kCHF, "Franc must have CHF currency.");
 }
 
 }  // namespace money_test
