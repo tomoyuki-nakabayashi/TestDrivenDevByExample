@@ -50,9 +50,31 @@ class Money {
     Currency currency_;
 };
 
+class Dollar : public Money<Dollar> {
+ public:
+    constexpr Dollar(int32_t amount = 0)
+        : Money{amount, Currency::kUSD} {}
+};
+
+class Franc : public Money<Franc> {
+ public:
+    constexpr Franc(int32_t amount = 0)
+        : Money{amount, Currency::kCHF} {}
+};
+
 template <class T>
-constexpr auto factory(int32_t amount) {
-  return Money<T>{amount};
+constexpr Money<T> factory(int32_t amount) {
+  return Money<T>{amount, Currency::kNoCurrency};
+}
+
+template <>
+constexpr Money<Dollar> factory(int32_t amount) {
+  return Money<Dollar>{amount, Currency::kUSD};
+}
+
+template <>
+constexpr Money<Franc> factory(int32_t amount) {
+  return Money<Franc>{amount, Currency::kCHF};
 }
 
 }  // namespace money

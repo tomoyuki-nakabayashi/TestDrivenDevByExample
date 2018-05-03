@@ -9,12 +9,6 @@
 
 namespace money {
 
-class Franc : public Money<Franc> {
- public:
-    constexpr Franc(int32_t amount = 0)
-        : Money{amount, Currency::kCHF} {}
-};
-
 }  // namespace money
 
 #endif  // CPP_TEMPLATE_FRANC_H_

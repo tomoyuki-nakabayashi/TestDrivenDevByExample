@@ -9,12 +9,6 @@
 
 namespace money {
 
-class Dollar : public Money<Dollar> {
- public:
-    constexpr Dollar(int32_t amount = 0)
-        : Money{amount, Currency::kUSD} {}
-};
-
 }  // namespace money
 
 #endif  // CPP_TEMPLATE_DOLLAR_H_
