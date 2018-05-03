@@ -14,35 +14,20 @@ enum class Currency {
   kUSD, kCHF, kNoCurrency
 };
 
-template <class Derived>
 class Money {
  public:
-    constexpr Money(int32_t amount, Currency currency = Currency::kNoCurrency)
+    constexpr Money(int32_t amount, Currency currency)
         : amount_{amount}, currency_{currency} {}
     constexpr Currency currency() const {
-      return Derived{0}.currency_;
+      return currency_;
     }
 
-    template <class T,
-                typename std::enable_if<
-                  std::is_same<Derived, T>::value
-                >::type* = nullptr
-              >
-    constexpr friend bool operator==(const Money<Derived>& rhs, const Money<T>& lhs) {
-      return (rhs.amount_ == lhs.amount_) && (Derived{0}.currency_ == T{0}.currency_);
+    constexpr friend bool operator==(const Money& rhs, const Money& lhs) {
+      return (rhs.amount_ == lhs.amount_) && (rhs.currency_ == lhs.currency_);
     }
 
-    template <class T,
-                typename std::enable_if<
-                  !std::is_same<Derived, T>::value
-                >::type* = nullptr
-              >
-    constexpr friend bool operator==(const Money<Derived>&, const Money<T>&) {
-      return false;
-    }
-
-    constexpr friend Money<Derived> operator*(const Money<Derived>& rhs, int32_t multiplier) {
-      return Money<Derived>{rhs.amount_*multiplier};
+    constexpr friend Money operator*(const Money rhs, int32_t multiplier) {
+      return Money{rhs.amount_*multiplier, rhs.currency_};
     }
 
  protected:
@@ -50,31 +35,12 @@ class Money {
     Currency currency_;
 };
 
-class Dollar : public Money<Dollar> {
- public:
-    constexpr Dollar(int32_t amount = 0)
-        : Money{amount, Currency::kUSD} {}
-};
-
-class Franc : public Money<Franc> {
- public:
-    constexpr Franc(int32_t amount = 0)
-        : Money{amount, Currency::kCHF} {}
-};
-
-template <class T>
-constexpr Money<T> factory(int32_t amount) {
-  return Money<T>{amount, Currency::kNoCurrency};
+constexpr Money dollar(int32_t amount) {
+  return Money{amount, Currency::kUSD};
 }
 
-template <>
-constexpr Money<Dollar> factory(int32_t amount) {
-  return Money<Dollar>{amount, Currency::kUSD};
-}
-
-template <>
-constexpr Money<Franc> factory(int32_t amount) {
-  return Money<Franc>{amount, Currency::kCHF};
+constexpr Money franc(int32_t amount) {
+  return Money{amount, Currency::kCHF};
 }
 
 }  // namespace money
