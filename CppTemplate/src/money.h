@@ -74,7 +74,18 @@ class Bank {
       return Bank<N+1>{{rates}};
     }
     constexpr int32_t rate(const Currency from, const Currency to) const {
-      return ((from == Currency::kCHF) && (to == Currency::kUSD)) ? 2 : 1;
+      if (from == to) return 1;
+      return findRate(from, to);
+    }
+
+ private:
+    constexpr int32_t findRate(const Currency from, const Currency to) const {
+      for (auto i = 0; i < N; i++) {
+        auto hash = rates_[i].first;
+        if (hash.first == from && hash.second == to)
+          return rates_[i].second;
+      }
+      return 0;
     }
 
  private:

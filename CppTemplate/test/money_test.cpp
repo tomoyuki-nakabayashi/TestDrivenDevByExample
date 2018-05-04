@@ -64,26 +64,13 @@ TEST_F(MoneyTest, ReduceMoney) {
 TEST_F(MoneyTest, ReduceMoneyDifferentCurrency) {
   constexpr Bank<0> bank{{}};
   constexpr auto new_bank = bank.addRate(Currency::kCHF, Currency::kUSD, 2);
-  constexpr Money result = bank.reduce(money::franc(2), Currency::kUSD);
+  constexpr Money result = new_bank.reduce(money::franc(2), Currency::kUSD);
   static_assert(result == money::dollar(1), "Two franc must be one dollar.");
 }
 
-TEST_F(MoneyTest, HasValidMapInitialize) {
-  using Hash = std::pair<const Currency, const Currency>;
-  using Rate = std::pair<Hash, int>;
-  std::array<Rate, 1> rates = { Rate{Hash{Currency::kCHF, Currency::kUSD}, 2} };
-  Bank<1> new_bank{{rates}};
-}
-
-TEST_F(MoneyTest, constexprMap) {
-  using Item = std::pair<int, int>;
-  constexpr std::array<Item, 3> map_items = {
-      Item{ 6, 7 },
-      Item{ 10, 12 },
-      Item{ 300, 5000 },
-  };
-
-  static_assert(map_items.size() == 3, "Can get array size.");
+TEST_F(MoneyTest, IdentityRate) {
+  constexpr Bank<0> bank{{}};
+  static_assert(bank.rate(Currency::kUSD, Currency::kUSD) == 1, "Must be one if two currecy are same.");
 }
 
 }  // namespace money_test
