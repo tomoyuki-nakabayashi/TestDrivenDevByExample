@@ -80,7 +80,7 @@ class Bank {
 
  private:
     constexpr int32_t findRate(const Currency from, const Currency to) const {
-      for (auto i = 0; i < N; i++) {
+      for (auto i = 0; i < N; ++i) {
         auto hash = rates_[i].first;
         if (hash.first == from && hash.second == to)
           return rates_[i].second;
@@ -104,7 +104,7 @@ class Sum : public Expression<Sum> {
         : augend_{augend}, addend_{addend} {}
     template <int32_t N>
     constexpr Money reduce(const Bank<N>& bank, const Currency to) const {
-      auto amount = augend_.amount() + addend_.amount();
+      auto amount = augend_.reduce(bank, to).amount() + addend_.reduce(bank, to).amount();
       return Money{amount, to};
     }
 
