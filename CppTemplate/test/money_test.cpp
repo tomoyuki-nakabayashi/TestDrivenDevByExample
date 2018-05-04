@@ -4,12 +4,14 @@
 #include <gtest/gtest.h>
 #include <expression.h>
 #include <bank.h>
+//#include <sum.h>
 
 namespace money_test{
 using money::Money;
 using money::Currency;
 using money::Expression;
 using money::Bank;
+using money::Sum;
 
 class MoneyTest : public ::testing::Test {
 };
@@ -37,6 +39,21 @@ TEST_F(MoneyTest, SimpleAddition) {
   constexpr Bank bank{};
   constexpr Money reduced = bank.reduce(sum, Currency::kUSD);
   static_assert(reduced == money::dollar(10), "sum must be 10 USD.");
+}
+
+TEST_F(MoneyTest, PlusReturnsSum) {
+  constexpr Money five = money::dollar(5);
+  constexpr auto sum = five + five;
+  static_assert(sum.augend_ == five, "Augend must be five dollar.");
+  static_assert(sum.addend_ == five, "Addend must be five dollar.");
+  static_assert((five.amount() + five.amount()) == 10, "Result must be 10");
+}
+
+TEST_F(MoneyTest, ReduceSum) {
+  constexpr auto sum = money::dollar(3) + money::dollar(4);
+  constexpr Bank bank{};
+  constexpr Money result = bank.reduce(sum, Currency::kUSD);
+  static_assert(result == money::dollar(7), "Result must be seven dollar.");
 }
 
 }  // namespace money_test

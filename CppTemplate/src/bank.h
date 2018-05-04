@@ -15,8 +15,8 @@ class Bank {
     constexpr Bank() {}
 
     template <class T>
-    constexpr Money reduce (Expression<T> source, Currency to) const {
-      return dollar(10);
+    constexpr Money reduce(const Expression<T>& source, Currency to) const {
+      return static_cast<Sum const&>(source).reduce(to);
     }
 };
 
