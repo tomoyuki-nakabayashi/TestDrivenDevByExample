@@ -7,14 +7,21 @@
 #include <cstdint>
 #include <type_traits>
 #include <utility>
-#include <expression.h>
 
 namespace money {
 
 class Sum;
+class Money;
 
 enum class Currency {
   kUSD, kCHF, kNoCurrency
+};
+
+template <class Derived>
+class Expression {
+ public:
+    constexpr Expression() {}
+    constexpr Money reduce(const Currency to) const;
 };
 
 class Money : public Expression<Money> {
@@ -26,6 +33,10 @@ class Money : public Expression<Money> {
     }
     constexpr int32_t amount() const{
       return amount_;
+    }
+
+    constexpr Money reduce(const Currency /*to*/) const {
+      return *this;
     }
 
     constexpr friend bool operator==(const Money& rhs, const Money& lhs) {
@@ -43,6 +54,11 @@ class Money : public Expression<Money> {
     Currency currency_;
 };
 
+template <class Derived>
+constexpr Money Expression<Derived>::reduce(const Currency to)const {
+  return static_cast<const Derived&>(*this).reduce(to);
+}
+
 constexpr Money dollar(int32_t amount) {
   return Money{amount, Currency::kUSD};
 }
@@ -51,12 +67,11 @@ constexpr Money franc(int32_t amount) {
   return Money{amount, Currency::kCHF};
 }
 
-
 class Sum : public Expression<Sum> {
  public:
     constexpr Sum(const Money& augend, const Money& addend)
         : augend_{augend}, addend_{addend} {}
-    constexpr Money reduce(const Currency& to) const {
+    constexpr Money reduce(const Currency to) const {
       auto amount = augend_.amount() + addend_.amount();
       return Money{amount, to};
     }

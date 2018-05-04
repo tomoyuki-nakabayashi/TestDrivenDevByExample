@@ -13,10 +13,9 @@ namespace money {
 class Bank {
  public:
     constexpr Bank() {}
-
     template <class T>
-    constexpr Money reduce(const Expression<T>& source, Currency to) const {
-      return static_cast<Sum const&>(source).reduce(to);
+    constexpr Money reduce(const Expression<T>& source, const Currency to) const {
+      return source.reduce(to);
     }
 };
 

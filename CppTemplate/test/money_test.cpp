@@ -2,7 +2,6 @@
 // This software is released under the MIT License, see LICENSE.
 
 #include <gtest/gtest.h>
-#include <expression.h>
 #include <bank.h>
 //#include <sum.h>
 
@@ -46,7 +45,6 @@ TEST_F(MoneyTest, PlusReturnsSum) {
   constexpr auto sum = five + five;
   static_assert(sum.augend_ == five, "Augend must be five dollar.");
   static_assert(sum.addend_ == five, "Addend must be five dollar.");
-  static_assert((five.amount() + five.amount()) == 10, "Result must be 10");
 }
 
 TEST_F(MoneyTest, ReduceSum) {
@@ -54,6 +52,12 @@ TEST_F(MoneyTest, ReduceSum) {
   constexpr Bank bank{};
   constexpr Money result = bank.reduce(sum, Currency::kUSD);
   static_assert(result == money::dollar(7), "Result must be seven dollar.");
+}
+
+TEST_F(MoneyTest, ReduceMoney) {
+  constexpr Bank bank{};
+  constexpr Money result = bank.reduce(money::dollar(1), Currency::kUSD);
+  static_assert(result == money::dollar(1), "Result must be one dollar.");
 }
 
 }  // namespace money_test
