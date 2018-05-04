@@ -1,6 +1,8 @@
 // Copyright <2018> <Tomoyuki Nakabayashi>
 // This software is released under the MIT License, see LICENSE.
 
+#include <utility>
+#include <array>
 #include <gtest/gtest.h>
 #include <money.h>
 
@@ -34,7 +36,7 @@ TEST_F(MoneyTest, Currency) {
 TEST_F(MoneyTest, SimpleAddition) {
   constexpr Money five = money::dollar(5);
   constexpr auto sum = five + five;
-  constexpr Bank bank{};
+  constexpr Bank<0> bank{{}};
   constexpr Money reduced = bank.reduce(sum, Currency::kUSD);
   static_assert(reduced == money::dollar(10), "sum must be 10 USD.");
 }
@@ -48,22 +50,40 @@ TEST_F(MoneyTest, PlusReturnsSum) {
 
 TEST_F(MoneyTest, ReduceSum) {
   constexpr auto sum = money::dollar(3) + money::dollar(4);
-  constexpr Bank bank{};
+  constexpr Bank<0> bank{{}};
   constexpr Money result = bank.reduce(sum, Currency::kUSD);
   static_assert(result == money::dollar(7), "Result must be seven dollar.");
 }
 
 TEST_F(MoneyTest, ReduceMoney) {
-  constexpr Bank bank{};
+  constexpr Bank<0> bank{{}};
   constexpr Money result = bank.reduce(money::dollar(1), Currency::kUSD);
   static_assert(result == money::dollar(1), "Result must be one dollar.");
 }
 
 TEST_F(MoneyTest, ReduceMoneyDifferentCurrency) {
-  constexpr Bank bank{};
-  bank.addRate(Currency::kCHF, Currency::kUSD, 2);
+  constexpr Bank<0> bank{{}};
+  constexpr auto new_bank = bank.addRate(Currency::kCHF, Currency::kUSD, 2);
   constexpr Money result = bank.reduce(money::franc(2), Currency::kUSD);
   static_assert(result == money::dollar(1), "Two franc must be one dollar.");
+}
+
+TEST_F(MoneyTest, HasValidMapInitialize) {
+  using Hash = std::pair<const Currency, const Currency>;
+  using Rate = std::pair<Hash, int>;
+  std::array<Rate, 1> rates = { Rate{Hash{Currency::kCHF, Currency::kUSD}, 2} };
+  Bank<1> new_bank{{rates}};
+}
+
+TEST_F(MoneyTest, constexprMap) {
+  using Item = std::pair<int, int>;
+  constexpr std::array<Item, 3> map_items = {
+      Item{ 6, 7 },
+      Item{ 10, 12 },
+      Item{ 300, 5000 },
+  };
+
+  static_assert(map_items.size() == 3, "Can get array size.");
 }
 
 }  // namespace money_test
