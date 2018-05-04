@@ -2,8 +2,7 @@
 // This software is released under the MIT License, see LICENSE.
 
 #include <gtest/gtest.h>
-#include <bank.h>
-//#include <sum.h>
+#include <money.h>
 
 namespace money_test{
 using money::Money;
@@ -58,6 +57,13 @@ TEST_F(MoneyTest, ReduceMoney) {
   constexpr Bank bank{};
   constexpr Money result = bank.reduce(money::dollar(1), Currency::kUSD);
   static_assert(result == money::dollar(1), "Result must be one dollar.");
+}
+
+TEST_F(MoneyTest, ReduceMoneyDifferentCurrency) {
+  constexpr Bank bank{};
+  bank.addRate(Currency::kCHF, Currency::kUSD, 2);
+  constexpr Money result = bank.reduce(money::franc(2), Currency::kUSD);
+  static_assert(result == money::dollar(1), "Two franc must be one dollar.");
 }
 
 }  // namespace money_test
