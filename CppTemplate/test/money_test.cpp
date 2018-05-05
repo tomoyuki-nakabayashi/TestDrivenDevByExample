@@ -74,8 +74,8 @@ TEST_F(MoneyTest, IdentityRate) {
 }
 
 TEST_F(MoneyTest, MixedAddition) {
-  constexpr Money five_bucks = money::dollar(5);
-  constexpr Money five_francs = money::franc(10);
+  constexpr auto five_bucks = money::dollar(5);
+  constexpr auto five_francs = money::franc(10);
   constexpr Bank<0> empty_bank{{}};
   constexpr auto bank = empty_bank.addRate(Currency::kCHF, Currency::kUSD, 2);
   constexpr Money result = bank.reduce(five_bucks + five_francs, Currency::kUSD);

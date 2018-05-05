@@ -26,6 +26,7 @@ class Expression {
     constexpr Expression() {}
     template <int32_t N>
     constexpr Money reduce(const Bank<N>& bank, const Currency to) const;
+    constexpr Money operator*(const int32_t multiplier) const;
 };
 
 class Money : public Expression<Money> {
@@ -44,12 +45,6 @@ class Money : public Expression<Money> {
 
     constexpr friend bool operator==(const Money& rhs, const Money& lhs) {
       return (rhs.amount_ == lhs.amount_) && (rhs.currency_ == lhs.currency_);
-    }
-
-    constexpr friend Sum operator+(const Money& rhs, const Money& lhs);
-
-    constexpr friend Money operator*(const Money& rhs, int32_t multiplier) {
-      return Money{rhs.amount_*multiplier, rhs.currency_};
     }
 
  private:
@@ -127,8 +122,15 @@ constexpr Money franc(int32_t amount) {
   return Money{amount, Currency::kCHF};
 }
 
-constexpr Sum operator+(const Money& rhs, const Money& lhs) {
-  return Sum{rhs, lhs};
+template <class T>
+constexpr Sum operator+(const Expression<T>& rhs, const Expression<T>& lhs) {
+  return Sum{static_cast<T const&>(rhs), static_cast<T const&>(lhs)};
+}
+
+template <class Derived>
+constexpr Money Expression<Derived>::operator*(const int32_t multiplier) const {
+  return Money{static_cast<Derived const&>(*this).amount() * multiplier,
+               static_cast<Derived const&>(*this).currency()};
 }
 
 }  // namespace money
