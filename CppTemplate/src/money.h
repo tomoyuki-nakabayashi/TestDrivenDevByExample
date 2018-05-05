@@ -11,6 +11,7 @@
 
 namespace money {
 
+template <class T, class U>
 class Sum;
 class Money;
 template <int32_t N>
@@ -93,19 +94,21 @@ constexpr Money Expression<Derived>::reduce(const Bank<N>& bank, const Currency 
   return static_cast<const Derived&>(*this).reduce(bank, to);
 }
 
-class Sum : public Expression<Sum> {
+template <class T, class U>
+class Sum : public Expression<Sum<T, U>> {
  public:
-    constexpr Sum(const Money& augend, const Money& addend)
+    constexpr Sum(const T& augend, const U& addend)
         : augend_{augend}, addend_{addend} {}
     template <int32_t N>
     constexpr Money reduce(const Bank<N>& bank, const Currency to) const {
-      auto amount = augend_.reduce(bank, to).amount() + addend_.reduce(bank, to).amount();
+      auto amount = augend_.reduce(bank, to).amount()
+         + addend_.reduce(bank, to).amount();
       return Money{amount, to};
     }
 
  public:
-    Money augend_;
-    Money addend_;
+    T augend_;
+    U addend_;
 };
 
 template <int32_t N>
@@ -122,9 +125,9 @@ constexpr Money franc(int32_t amount) {
   return Money{amount, Currency::kCHF};
 }
 
-template <class T>
-constexpr Sum operator+(const Expression<T>& rhs, const Expression<T>& lhs) {
-  return Sum{static_cast<T const&>(rhs), static_cast<T const&>(lhs)};
+template <class T, class U>
+constexpr Sum<T, U> operator+(const Expression<T>& rhs, const Expression<U>& lhs) {
+  return Sum<T, U>{static_cast<T const&>(rhs), static_cast<U const&>(lhs)};
 }
 
 template <class Derived>

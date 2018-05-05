@@ -75,11 +75,21 @@ TEST_F(MoneyTest, IdentityRate) {
 
 TEST_F(MoneyTest, MixedAddition) {
   constexpr auto five_bucks = money::dollar(5);
-  constexpr auto five_francs = money::franc(10);
+  constexpr auto ten_francs = money::franc(10);
   constexpr Bank<0> empty_bank{{}};
   constexpr auto bank = empty_bank.addRate(Currency::kCHF, Currency::kUSD, 2);
-  constexpr Money result = bank.reduce(five_bucks + five_francs, Currency::kUSD);
+  constexpr Money result = bank.reduce(five_bucks + ten_francs, Currency::kUSD);
   static_assert(result == money::dollar(10), "5 USD + 10 CHF must be 10 USD.");
+}
+
+TEST_F(MoneyTest, SumPlusMoney) {
+  constexpr auto five_bucks = money::dollar(5);
+  constexpr auto ten_francs = money::franc(10);
+  constexpr Bank<0> empty_bank{{}};
+  constexpr auto bank = empty_bank.addRate(Currency::kCHF, Currency::kUSD, 2);
+  constexpr auto sum = Sum<Sum<Money, Money>, Money>{Sum<Money, Money>{five_bucks, ten_francs} + five_bucks};
+  constexpr Money result = bank.reduce(sum, Currency::kUSD);
+  static_assert(result == money::dollar(15), "5 USD + 10 CHF + 5 USD must be 15 USD.");
 }
 
 }  // namespace money_test
