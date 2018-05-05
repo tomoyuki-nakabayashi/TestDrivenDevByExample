@@ -11,9 +11,10 @@
 
 namespace money {
 
+// Forward declarations.
+class Money;
 template <class T, class U>
 class Sum;
-class Money;
 template <int32_t N>
 class Bank;
 
@@ -24,28 +25,30 @@ enum class Currency {
 template <class Derived>
 class Expression {
  public:
-    constexpr Expression() {}
+    constexpr Expression() = default;
     template <int32_t N>
     constexpr Money reduce(const Bank<N>& bank, const Currency to) const;
-    constexpr Money operator*(const int32_t multiplier) const;
 };
 
 class Money : public Expression<Money> {
  public:
     constexpr Money(int32_t amount, Currency currency = Currency::kNoCurrency)
         : amount_{amount}, currency_{currency} {}
+
+    // Implements Expression interface.
+    template <int32_t N>
+    constexpr Money reduce(const Bank<N>& bank, const Currency to) const;
+
+    constexpr friend bool operator==(const Money& lhs, const Money& rhs) {
+      return (lhs.amount_ == rhs.amount_) && (lhs.currency_ == rhs.currency_);
+    }
+
+    // Accessors.
     constexpr Currency currency() const {
       return currency_;
     }
     constexpr int32_t amount() const{
       return amount_;
-    }
-
-    template <int32_t N>
-    constexpr Money reduce(const Bank<N>& bank, const Currency to) const;
-
-    constexpr friend bool operator==(const Money& rhs, const Money& lhs) {
-      return (rhs.amount_ == lhs.amount_) && (rhs.currency_ == lhs.currency_);
     }
 
  private:
@@ -61,10 +64,12 @@ class Bank {
  public:
     constexpr Bank(const std::array<Rate, N>& rates) : rates_{rates} {}
  
+    // Implements Expression interface.
     template <class T>
     constexpr Money reduce(const Expression<T>& source, const Currency to) const {
       return source.reduce(*this, to);
     }
+
     constexpr Bank<N+1> addRate(const Currency from, const Currency to, int32_t rate) const {
       std::array<Rate, 1> rates = { Rate{Hash{from, to}, rate} };
       return Bank<N+1>{{rates}};
@@ -88,17 +93,13 @@ class Bank {
     std::array<Rate, N> rates_;
 };
 
-template <class Derived>
-template <int32_t N>
-constexpr Money Expression<Derived>::reduce(const Bank<N>& bank, const Currency to)const {
-  return static_cast<const Derived&>(*this).reduce(bank, to);
-}
-
 template <class T, class U>
 class Sum : public Expression<Sum<T, U>> {
  public:
     constexpr Sum(const T& augend, const U& addend)
         : augend_{augend}, addend_{addend} {}
+
+    // Implements Expression interface.
     template <int32_t N>
     constexpr Money reduce(const Bank<N>& bank, const Currency to) const {
       auto amount = augend_.reduce(bank, to).amount()
@@ -106,10 +107,20 @@ class Sum : public Expression<Sum<T, U>> {
       return Money{amount, to};
     }
 
- public:
+    // Accessors.
+    constexpr T augend() const { return augend_; }
+    constexpr U addend() const { return addend_; }
+
+ private:
     T augend_;
     U addend_;
 };
+
+template <class Derived>
+template <int32_t N>
+constexpr Money Expression<Derived>::reduce(const Bank<N>& bank, const Currency to)const {
+  return static_cast<const Derived&>(*this).reduce(bank, to);
+}
 
 template <int32_t N>
 constexpr Money Money::reduce(const Bank<N>& bank, const Currency to) const {
@@ -117,6 +128,7 @@ constexpr Money Money::reduce(const Bank<N>& bank, const Currency to) const {
   return Money(amount_ / rate, to);
 }
 
+// Factory methods.
 constexpr Money dollar(int32_t amount) {
   return Money{amount, Currency::kUSD};
 }
@@ -125,15 +137,20 @@ constexpr Money franc(int32_t amount) {
   return Money{amount, Currency::kCHF};
 }
 
+// Operators.
 template <class T, class U>
-constexpr Sum<T, U> operator+(const Expression<T>& rhs, const Expression<U>& lhs) {
-  return Sum<T, U>{static_cast<T const&>(rhs), static_cast<U const&>(lhs)};
+constexpr Sum<T, U> operator+(const Expression<T>& lhs, const Expression<U>& rhs) {
+  return Sum<T, U>{static_cast<T const&>(lhs), static_cast<U const&>(rhs)};
 }
 
-template <class Derived>
-constexpr Money Expression<Derived>::operator*(const int32_t multiplier) const {
-  return Money{static_cast<Derived const&>(*this).amount() * multiplier,
-               static_cast<Derived const&>(*this).currency()};
+template <class T>
+constexpr T operator*(const Expression<T>& lhs, const int32_t multiplier) {
+  return T(static_cast<T const&>(lhs).augend() * multiplier,
+           static_cast<T const&>(lhs).addend() * multiplier);
+}
+
+constexpr Money operator*(const Money& lhs, const int32_t multiplier) {
+  return Money{lhs.amount() * multiplier, lhs.currency()};
 }
 
 }  // namespace money

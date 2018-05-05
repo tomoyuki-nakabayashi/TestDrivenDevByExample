@@ -24,13 +24,17 @@ TEST_F(MoneyTest, Multiplication) {
 
 TEST_F(MoneyTest, Equality) {
   static_assert(money::dollar(5) == money::dollar(5), "Two objects must be same.");
-  static_assert(!(money::dollar(5) == money::dollar(6)), "Two objects must be different.");
-  static_assert(!(money::franc(5) == money::dollar(5)), "Two objects must be different.");
+  static_assert(!(money::dollar(5) == money::dollar(6)),
+    "Two objects must be different.");
+  static_assert(!(money::franc(5) == money::dollar(5)),
+    "Two objects must be different.");
 }
 
 TEST_F(MoneyTest, Currency) {
-  static_assert(money::dollar(1).currency() == Currency::kUSD, "Dollar must have USD currency.");
-  static_assert(money::franc(1).currency() == Currency::kCHF, "Franc must have CHF currency.");
+  static_assert(money::dollar(1).currency() == Currency::kUSD,
+    "Dollar must have USD currency.");
+  static_assert(money::franc(1).currency() == Currency::kCHF,
+    "Franc must have CHF currency.");
 }
 
 TEST_F(MoneyTest, SimpleAddition) {
@@ -44,8 +48,8 @@ TEST_F(MoneyTest, SimpleAddition) {
 TEST_F(MoneyTest, PlusReturnsSum) {
   constexpr Money five = money::dollar(5);
   constexpr auto sum = five + five;
-  static_assert(sum.augend_ == five, "Augend must be five dollar.");
-  static_assert(sum.addend_ == five, "Addend must be five dollar.");
+  static_assert(sum.augend() == five, "Augend must be five dollar.");
+  static_assert(sum.addend() == five, "Addend must be five dollar.");
 }
 
 TEST_F(MoneyTest, ReduceSum) {
@@ -70,7 +74,8 @@ TEST_F(MoneyTest, ReduceMoneyDifferentCurrency) {
 
 TEST_F(MoneyTest, IdentityRate) {
   constexpr Bank<0> bank{{}};
-  static_assert(bank.rate(Currency::kUSD, Currency::kUSD) == 1, "Must be one if two currecy are same.");
+  static_assert(bank.rate(Currency::kUSD, Currency::kUSD) == 1,
+    "Must be one if two currecy are same.");
 }
 
 TEST_F(MoneyTest, MixedAddition) {
@@ -87,9 +92,20 @@ TEST_F(MoneyTest, SumPlusMoney) {
   constexpr auto ten_francs = money::franc(10);
   constexpr Bank<0> empty_bank{{}};
   constexpr auto bank = empty_bank.addRate(Currency::kCHF, Currency::kUSD, 2);
-  constexpr auto sum = Sum<Sum<Money, Money>, Money>{Sum<Money, Money>{five_bucks, ten_francs} + five_bucks};
+  constexpr auto sum = Sum<Sum<Money, Money>, Money>{
+    Sum<Money, Money>{five_bucks, ten_francs} + five_bucks};
   constexpr Money result = bank.reduce(sum, Currency::kUSD);
   static_assert(result == money::dollar(15), "5 USD + 10 CHF + 5 USD must be 15 USD.");
+}
+
+TEST_F(MoneyTest, SumTimes) {
+  constexpr auto five_bucks = money::dollar(5);
+  constexpr auto ten_francs = money::franc(10);
+  constexpr Bank<0> empty_bank{{}};
+  constexpr auto bank = empty_bank.addRate(Currency::kCHF, Currency::kUSD, 2);
+  constexpr auto sum = Sum<Money, Money>{five_bucks, ten_francs} * 2;
+  constexpr Money result = bank.reduce(sum, Currency::kUSD);
+  static_assert(result == money::dollar(20), "(5 USD + 10 CHF) *2 must be 20 USD.");
 }
 
 }  // namespace money_test
