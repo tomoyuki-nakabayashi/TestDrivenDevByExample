@@ -92,8 +92,7 @@ TEST_F(MoneyTest, SumPlusMoney) {
   constexpr auto ten_francs = money::franc(10);
   constexpr Bank<0> empty_bank{{}};
   constexpr auto bank = empty_bank.addRate(Currency::kCHF, Currency::kUSD, 2);
-  constexpr auto sum = Sum<Sum<Money, Money>, Money>{
-    Sum<Money, Money>{five_bucks, ten_francs} + five_bucks};
+  constexpr auto sum = (five_bucks + ten_francs) + five_bucks;
   constexpr Money result = bank.reduce(sum, Currency::kUSD);
   static_assert(result == money::dollar(15), "5 USD + 10 CHF + 5 USD must be 15 USD.");
 }
@@ -103,7 +102,7 @@ TEST_F(MoneyTest, SumTimes) {
   constexpr auto ten_francs = money::franc(10);
   constexpr Bank<0> empty_bank{{}};
   constexpr auto bank = empty_bank.addRate(Currency::kCHF, Currency::kUSD, 2);
-  constexpr auto sum = Sum<Money, Money>{five_bucks, ten_francs} * 2;
+  constexpr auto sum = (five_bucks + ten_francs) * 2;
   constexpr Money result = bank.reduce(sum, Currency::kUSD);
   static_assert(result == money::dollar(20), "(5 USD + 10 CHF) *2 must be 20 USD.");
 }

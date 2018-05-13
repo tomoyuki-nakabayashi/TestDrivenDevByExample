@@ -81,7 +81,7 @@ class Bank {
 
  private:
     constexpr int32_t findRate(const Currency from, const Currency to) const {
-      for (auto i = 0; i < N; ++i) {
+       for (auto i = 0; i < N; ++i) {
         auto hash = rates_[i].first;
         if (hash.first == from && hash.second == to)
           return rates_[i].second;
