@@ -109,7 +109,11 @@ TEST_F(MoneyTest, SumTimes) {
 
 template <int N>
 constexpr static std::array<int, N> createTable() {
-  return std::array<int, N>{};
+  std::array<int, N> a{};
+  for (int i = 0; i < N; ++i) {
+    a[i] = i;
+  }
+  return a;
 }
 
 TEST_F(MoneyTest, CreateTable) {
