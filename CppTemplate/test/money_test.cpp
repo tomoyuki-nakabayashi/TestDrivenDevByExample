@@ -107,4 +107,15 @@ TEST_F(MoneyTest, SumTimes) {
   static_assert(result == money::dollar(20), "(5 USD + 10 CHF) *2 must be 20 USD.");
 }
 
+template <int N>
+constexpr static std::array<int, N> createTable() {
+  return std::array<int, N>{};
+}
+
+TEST_F(MoneyTest, CreateTable) {
+  constexpr auto t1 = createTable<1>();
+  constexpr auto t2 = createTable<1>();
+  static_assert(t1[0] == t2[0], "can build.");
+}
+
 }  // namespace money_test
