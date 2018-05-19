@@ -56,11 +56,28 @@ class Money : public Expression<Money> {
     Currency currency_;
 };
 
+class TransrationRate {
+ public:
+    constexpr TransrationRate()
+        : from_{Currency::kNoCurrency}, to_{Currency::kNoCurrency}, rate_{0} {}
+    constexpr TransrationRate(const Currency from, const Currency to, const int32_t rate)
+        : from_{from}, to_{to}, rate_{rate} {}
+    constexpr TransrationRate(const TransrationRate& other) = default;
+    TransrationRate& operator=(const TransrationRate& other) = default;
+    bool operator==(const TransrationRate& rhs) {
+      return ((from_ == rhs.from_) && (to_ == rhs.to_));
+    }
+
+ private:
+    Currency from_;
+    Currency to_;
+    int32_t rate_;
+};
+
+using Hash = std::pair<Currency, Currency>;
+using Rate = std::pair<Hash, int>;
 template <int32_t N>
 class Bank {
-  using Hash = std::pair<const Currency, const Currency>;
-  using Rate = std::pair<Hash, int>;
-
  public:
     constexpr Bank(const std::array<Rate, N>& rates) : rates_{rates} {}
  
@@ -71,7 +88,13 @@ class Bank {
     }
 
     constexpr Bank<N+1> addRate(const Currency from, const Currency to, int32_t rate) const {
-      std::array<Rate, 1> rates = { Rate{Hash{from, to}, rate} };
+      std::array<Rate, N+1> rates{ Rate{Hash{from, to}, rate} };
+      std::array<TransrationRate, N+1> transration_rates;
+
+      for (size_t i = 0; i < N; ++i)
+        transration_rates[i] = transration_rates_[i];
+      transration_rates[N] = TransrationRate(from, to, rate);
+ 
       return Bank<N+1>{{rates}};
     }
     constexpr int32_t rate(const Currency from, const Currency to) const {
@@ -91,6 +114,7 @@ class Bank {
 
  private:
     std::array<Rate, N> rates_;
+    std::array<TransrationRate, N> transration_rates_;
 };
 
 template <class T, class U>

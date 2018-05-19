@@ -121,5 +121,19 @@ TEST_F(MoneyTest, CreateTable) {
   constexpr auto t2 = createTable<1>();
   static_assert(t1[0] == t2[0], "can build.");
 }
+/* 
+using money::Hash;
+using money::Rate;
 
+constexpr void assign() {
+  Hash a {Currency::kCHF, Currency::kUSD};
+  Hash b {Currency::kCHF, Currency::kCHF};
+
+  a = b;
+}
+
+TEST_F(MoneyTest, PairAssignable) {
+  assign();
+}
+ */
 }  // namespace money_test
