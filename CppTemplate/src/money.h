@@ -64,9 +64,11 @@ class TransrationRate {
         : from_{from}, to_{to}, rate_{rate} {}
     constexpr TransrationRate(const TransrationRate& other) = default;
     TransrationRate& operator=(const TransrationRate& other) = default;
-    bool operator==(const TransrationRate& rhs) {
-      return ((from_ == rhs.from_) && (to_ == rhs.to_));
+    constexpr friend bool operator==(const TransrationRate& lhs, const TransrationRate& rhs) {
+      return ((lhs.from_ == rhs.from_) && (lhs.to_ == rhs.to_));
     }
+
+    constexpr int32_t rate() const { return rate_; }
 
  private:
     Currency from_;
@@ -79,7 +81,9 @@ using Rate = std::pair<Hash, int>;
 template <int32_t N>
 class Bank {
  public:
-    constexpr Bank(const std::array<Rate, N>& rates) : rates_{rates} {}
+    constexpr Bank(): transration_rates_{} {}
+    constexpr Bank(const std::array<TransrationRate, N>& rates)
+        : transration_rates_{rates} {}
  
     // Implements Expression interface.
     template <class T>
@@ -88,14 +92,13 @@ class Bank {
     }
 
     constexpr Bank<N+1> addRate(const Currency from, const Currency to, int32_t rate) const {
-      std::array<Rate, N+1> rates{ Rate{Hash{from, to}, rate} };
       std::array<TransrationRate, N+1> transration_rates;
 
       for (size_t i = 0; i < N; ++i)
         transration_rates[i] = transration_rates_[i];
       transration_rates[N] = TransrationRate(from, to, rate);
  
-      return Bank<N+1>{{rates}};
+      return Bank<N+1>{transration_rates};
     }
     constexpr int32_t rate(const Currency from, const Currency to) const {
       if (from == to) return 1;
@@ -104,16 +107,15 @@ class Bank {
 
  private:
     constexpr int32_t findRate(const Currency from, const Currency to) const {
-       for (auto i = 0; i < N; ++i) {
-        auto hash = rates_[i].first;
-        if (hash.first == from && hash.second == to)
-          return rates_[i].second;
+      TransrationRate target(from, to, 1);
+      for (auto i = 0; i < N; ++i) {
+        if (transration_rates_[i] == target)
+          return transration_rates_[i].rate();
       }
       return 0;
     }
 
  private:
-    std::array<Rate, N> rates_;
     std::array<TransrationRate, N> transration_rates_;
 };
 
