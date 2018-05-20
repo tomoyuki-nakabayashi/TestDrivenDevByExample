@@ -15,7 +15,6 @@ namespace money {
 class Money;
 template <class T, class U>
 class Sum;
-template <int32_t N>
 class Bank;
 
 enum class Currency {
@@ -27,8 +26,7 @@ template <class Derived>
 class Expression {
  public:
     constexpr Expression() = default;
-    template <int32_t N>
-    constexpr Money reduce(const Bank<N>& bank, const Currency to) const;
+    constexpr Money reduce(const Bank& bank, const Currency to) const;
 };
 
 class Money : public Expression<Money> {
@@ -37,8 +35,7 @@ class Money : public Expression<Money> {
         : amount_{amount}, currency_{currency} {}
 
     // Implements Expression interface.
-    template <int32_t N>
-    constexpr Money reduce(const Bank<N>& bank, const Currency to) const;
+    constexpr Money reduce(const Bank& bank, const Currency to) const;
 
     constexpr friend bool operator==(const Money& lhs, const Money& rhs) {
       return (lhs.amount_ == rhs.amount_) && (lhs.currency_ == rhs.currency_);
@@ -77,21 +74,18 @@ class Rate {
     int32_t rate_;
 };
 
-constexpr static uint32_t Factorial(const uint32_t n) {
-  uint32_t result = 1;
-  for (uint32_t i = 0; i < n; ++i)
-    result *= i;
-  return result;
+constexpr static size_t CalcTradingRateEntry(const uint32_t n) {
+  return n*(n-1);
 }
 
-constexpr static uint32_t kNumTradingRateEntry = Factorial(kNumTradingCurrency);
+constexpr static size_t kNumTradingRateEntry
+    = CalcTradingRateEntry(kNumTradingCurrency);
 
-template <int32_t N>
 class Bank {
  public:
-    constexpr Bank(): rates_{} {}
-    constexpr Bank(const std::array<Rate, N>& rates)
-        : rates_{rates} {}
+    constexpr Bank(): rates_{}, filled_index_{} {}
+    constexpr Bank(const std::array<Rate, kNumTradingRateEntry>& rates, const size_t filled)
+        : rates_{rates}, filled_index_{filled} {}
  
     // Implements Expression interface.
     template <class T>
@@ -99,14 +93,14 @@ class Bank {
       return source.reduce(*this, to);
     }
 
-    constexpr Bank<N+1> addRate(const Currency from, const Currency to, int32_t rate) const {
-      std::array<Rate, N+1> transration_rates;
+    constexpr Bank addRate(const Currency from, const Currency to, const int32_t rate) const {
+      std::array<Rate, kNumTradingRateEntry> transration_rates;
 
-      for (size_t i = 0; i < N; ++i)
+      for (size_t i = 0; i < filled_index_; ++i)
         transration_rates[i] = rates_[i];
-      transration_rates[N] = Rate(from, to, rate);
+      transration_rates[filled_index_] = Rate(from, to, rate);
  
-      return Bank<N+1>{transration_rates};
+      return Bank{transration_rates, filled_index_+1};
     }
     constexpr int32_t rate(const Currency from, const Currency to) const {
       if (from == to) return 1;
@@ -116,7 +110,7 @@ class Bank {
  private:
     constexpr int32_t findRate(const Currency from, const Currency to) const {
       Rate target(from, to, 1);
-      for (auto i = 0; i < N; ++i) {
+      for (size_t i = 0; i < filled_index_; ++i) {
         if (rates_[i] == target)
           return rates_[i].rate();
       }
@@ -125,6 +119,7 @@ class Bank {
 
  private:
     std::array<Rate, kNumTradingRateEntry> rates_;
+    size_t filled_index_;
 };
 
 template <class T, class U>
@@ -134,8 +129,7 @@ class Sum : public Expression<Sum<T, U>> {
         : augend_{augend}, addend_{addend} {}
 
     // Implements Expression interface.
-    template <int32_t N>
-    constexpr Money reduce(const Bank<N>& bank, const Currency to) const {
+    constexpr Money reduce(const Bank& bank, const Currency to) const {
       auto amount = augend_.reduce(bank, to).amount()
          + addend_.reduce(bank, to).amount();
       return Money{amount, to};
@@ -151,13 +145,11 @@ class Sum : public Expression<Sum<T, U>> {
 };
 
 template <class Derived>
-template <int32_t N>
-constexpr Money Expression<Derived>::reduce(const Bank<N>& bank, const Currency to)const {
+constexpr Money Expression<Derived>::reduce(const Bank& bank, const Currency to)const {
   return static_cast<const Derived&>(*this).reduce(bank, to);
 }
 
-template <int32_t N>
-constexpr Money Money::reduce(const Bank<N>& bank, const Currency to) const {
+constexpr Money Money::reduce(const Bank& bank, const Currency to) const {
   int rate = bank.rate(currency_, to);
   return Money(amount_ / rate, to);
 }
