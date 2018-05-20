@@ -54,26 +54,24 @@ class Money : public Expression<Money> {
     Currency currency_;
 };
 
-class Rate {
+struct Rate {
+    int32_t rate;
+
  public:
     constexpr Rate()
-        : from_{Currency::kNoCurrency}, to_{Currency::kNoCurrency}, rate_{0} {}
-    constexpr Rate(const Currency from, const Currency to, const int32_t rate)
-        : from_{from}, to_{to}, rate_{rate} {}
-    constexpr Rate(const Rate& other) = default;
-    Rate& operator=(const Rate& other) = default;
+        : rate{0}, from{Currency::kNoCurrency}, to{Currency::kNoCurrency} {}
+    constexpr Rate(const Currency f, const Currency t, const int32_t r)
+        : rate{r}, from{f}, to{t} {}
     constexpr friend bool operator==(const Rate& lhs, const Rate& rhs) {
-      return ((lhs.from_ == rhs.from_) && (lhs.to_ == rhs.to_));
+      return ((lhs.from == rhs.from) && (lhs.to == rhs.to));
     }
 
-    constexpr int32_t rate() const { return rate_; }
-
  private:
-    Currency from_;
-    Currency to_;
-    int32_t rate_;
+    Currency from;
+    Currency to;
 };
 
+// A currency is exchanged to the other (means, n-1) currencies.
 constexpr static size_t CalcTradingRateEntry(const uint32_t n) {
   return n*(n-1);
 }
@@ -94,13 +92,21 @@ class Bank {
     }
 
     constexpr Bank addRate(const Currency from, const Currency to, const int32_t rate) const {
-      std::array<Rate, kNumTradingRateEntry> transration_rates;
-
-      for (size_t i = 0; i < filled_index_; ++i)
-        transration_rates[i] = rates_[i];
-      transration_rates[filled_index_] = Rate(from, to, rate);
+      std::array<Rate, kNumTradingRateEntry> new_rates{rates_};
+      size_t new_filled_index = filled_index_;
+      Rate target(from, to, rate);
+      for (size_t i = 0; i < filled_index_; ++i) {
+        if (new_rates[i] == target) {
+          new_rates[i].rate = rate;
+          new_filled_index++;
+        }
+      }
+      if (new_filled_index == filled_index_) {
+        new_rates[filled_index_] = target;
+        new_filled_index++;
+      }
  
-      return Bank{transration_rates, filled_index_+1};
+      return Bank{new_rates, new_filled_index};
     }
     constexpr int32_t rate(const Currency from, const Currency to) const {
       if (from == to) return 1;
@@ -112,7 +118,7 @@ class Bank {
       Rate target(from, to, 1);
       for (size_t i = 0; i < filled_index_; ++i) {
         if (rates_[i] == target)
-          return rates_[i].rate();
+          return rates_[i].rate;
       }
       return 0;
     }
