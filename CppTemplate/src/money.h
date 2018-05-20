@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <utility>
 #include <array>
+#include <algorithm>
 
 namespace money {
 
@@ -79,11 +80,21 @@ constexpr static size_t CalcTradingRateEntry(const uint32_t n) {
 constexpr static size_t kNumTradingRateEntry
     = CalcTradingRateEntry(kNumTradingCurrency);
 
+constexpr size_t FindExistingEntry(const std::array<Rate, kNumTradingRateEntry>& rates,
+                                   const Rate& target, const size_t filled_index) {
+  size_t i = 0;
+  for (; i < filled_index; ++i) {
+    if (rates[i] == target)
+      break;
+  }
+  return i;
+}
+
 class Bank {
  public:
-    constexpr Bank(): rates_{}, filled_index_{} {}
+    constexpr Bank(): rates_{}, index_for_new_entry_{0} {}
     constexpr Bank(const std::array<Rate, kNumTradingRateEntry>& rates, const size_t filled)
-        : rates_{rates}, filled_index_{filled} {}
+        : rates_{rates}, index_for_new_entry_{filled} {}
  
     // Implements Expression interface.
     template <class T>
@@ -93,20 +104,18 @@ class Bank {
 
     constexpr Bank addRate(const Currency from, const Currency to, const int32_t rate) const {
       std::array<Rate, kNumTradingRateEntry> new_rates{rates_};
-      size_t new_filled_index = filled_index_;
-      Rate target(from, to, rate);
-      for (size_t i = 0; i < filled_index_; ++i) {
-        if (new_rates[i] == target) {
-          new_rates[i].rate = rate;
-          new_filled_index++;
-        }
+      size_t index_for_new_entry = index_for_new_entry_;
+      const Rate target(from, to, rate);
+
+      size_t index = FindExistingEntry(rates_, target, index_for_new_entry_);
+      if (index == index_for_new_entry_) {
+        new_rates[index] = target;
+        index_for_new_entry++;
+      } else {
+        new_rates[index].rate = rate;
       }
-      if (new_filled_index == filled_index_) {
-        new_rates[filled_index_] = target;
-        new_filled_index++;
-      }
- 
-      return Bank{new_rates, new_filled_index};
+
+      return Bank{new_rates, index_for_new_entry};
     }
     constexpr int32_t rate(const Currency from, const Currency to) const {
       if (from == to) return 1;
@@ -116,7 +125,7 @@ class Bank {
  private:
     constexpr int32_t findRate(const Currency from, const Currency to) const {
       Rate target(from, to, 1);
-      for (size_t i = 0; i < filled_index_; ++i) {
+      for (size_t i = 0; i < index_for_new_entry_; ++i) {
         if (rates_[i] == target)
           return rates_[i].rate;
       }
@@ -125,7 +134,7 @@ class Bank {
 
  private:
     std::array<Rate, kNumTradingRateEntry> rates_;
-    size_t filled_index_;
+    size_t index_for_new_entry_;
 };
 
 template <class T, class U>
