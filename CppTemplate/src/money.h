@@ -21,6 +21,7 @@ class Bank;
 enum class Currency {
   kUSD, kCHF, kNoCurrency
 };
+constexpr static uint32_t kNumTradingCurrency = 2;
 
 template <class Derived>
 class Expression {
@@ -56,15 +57,15 @@ class Money : public Expression<Money> {
     Currency currency_;
 };
 
-class TransrationRate {
+class Rate {
  public:
-    constexpr TransrationRate()
+    constexpr Rate()
         : from_{Currency::kNoCurrency}, to_{Currency::kNoCurrency}, rate_{0} {}
-    constexpr TransrationRate(const Currency from, const Currency to, const int32_t rate)
+    constexpr Rate(const Currency from, const Currency to, const int32_t rate)
         : from_{from}, to_{to}, rate_{rate} {}
-    constexpr TransrationRate(const TransrationRate& other) = default;
-    TransrationRate& operator=(const TransrationRate& other) = default;
-    constexpr friend bool operator==(const TransrationRate& lhs, const TransrationRate& rhs) {
+    constexpr Rate(const Rate& other) = default;
+    Rate& operator=(const Rate& other) = default;
+    constexpr friend bool operator==(const Rate& lhs, const Rate& rhs) {
       return ((lhs.from_ == rhs.from_) && (lhs.to_ == rhs.to_));
     }
 
@@ -76,14 +77,21 @@ class TransrationRate {
     int32_t rate_;
 };
 
-using Hash = std::pair<Currency, Currency>;
-using Rate = std::pair<Hash, int>;
+constexpr static uint32_t Factorial(const uint32_t n) {
+  uint32_t result = 1;
+  for (uint32_t i = 0; i < n; ++i)
+    result *= i;
+  return result;
+}
+
+constexpr static uint32_t kNumTradingRateEntry = Factorial(kNumTradingCurrency);
+
 template <int32_t N>
 class Bank {
  public:
-    constexpr Bank(): transration_rates_{} {}
-    constexpr Bank(const std::array<TransrationRate, N>& rates)
-        : transration_rates_{rates} {}
+    constexpr Bank(): rates_{} {}
+    constexpr Bank(const std::array<Rate, N>& rates)
+        : rates_{rates} {}
  
     // Implements Expression interface.
     template <class T>
@@ -92,11 +100,11 @@ class Bank {
     }
 
     constexpr Bank<N+1> addRate(const Currency from, const Currency to, int32_t rate) const {
-      std::array<TransrationRate, N+1> transration_rates;
+      std::array<Rate, N+1> transration_rates;
 
       for (size_t i = 0; i < N; ++i)
-        transration_rates[i] = transration_rates_[i];
-      transration_rates[N] = TransrationRate(from, to, rate);
+        transration_rates[i] = rates_[i];
+      transration_rates[N] = Rate(from, to, rate);
  
       return Bank<N+1>{transration_rates};
     }
@@ -107,16 +115,16 @@ class Bank {
 
  private:
     constexpr int32_t findRate(const Currency from, const Currency to) const {
-      TransrationRate target(from, to, 1);
+      Rate target(from, to, 1);
       for (auto i = 0; i < N; ++i) {
-        if (transration_rates_[i] == target)
-          return transration_rates_[i].rate();
+        if (rates_[i] == target)
+          return rates_[i].rate();
       }
       return 0;
     }
 
  private:
-    std::array<TransrationRate, N> transration_rates_;
+    std::array<Rate, kNumTradingRateEntry> rates_;
 };
 
 template <class T, class U>
